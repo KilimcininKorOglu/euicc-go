@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"net/url"
 
-	"github.com/damonto/euicc-go/driver/qmi"
-	"github.com/damonto/euicc-go/lpa"
-	sgp22 "github.com/damonto/euicc-go/v2"
+	"github.com/KilimcininKorOglu/euicc-go/driver/qmi"
+	"github.com/KilimcininKorOglu/euicc-go/lpa"
+	sgp22 "github.com/KilimcininKorOglu/euicc-go/v2"
 )
 
 func main() {

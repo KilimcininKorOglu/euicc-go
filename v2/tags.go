@@ -1,6 +1,6 @@
 package sgp22
 
-import "github.com/damonto/euicc-go/bertlv"
+import "github.com/KilimcininKorOglu/euicc-go/bertlv"
 
 // region Request Tags
 

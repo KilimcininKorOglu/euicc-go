@@ -5,9 +5,9 @@ import (
 	"io"
 	"log/slog"
 
-	"github.com/damonto/euicc-go/apdu"
-	"github.com/damonto/euicc-go/bertlv"
-	sgp22 "github.com/damonto/euicc-go/v2"
+	"github.com/KilimcininKorOglu/euicc-go/apdu"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv"
+	sgp22 "github.com/KilimcininKorOglu/euicc-go/v2"
 )
 
 type Transmitter interface {

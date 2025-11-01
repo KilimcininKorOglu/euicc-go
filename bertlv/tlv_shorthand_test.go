@@ -3,7 +3,7 @@ package bertlv
 import (
 	"testing"
 
-	"github.com/damonto/euicc-go/bertlv/primitive"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv/primitive"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/damonto/euicc-go/bertlv"
-	sgp22 "github.com/damonto/euicc-go/v2"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv"
+	sgp22 "github.com/KilimcininKorOglu/euicc-go/v2"
 )
 
 func (c *Client) EUICCChallenge() ([]byte, error) {

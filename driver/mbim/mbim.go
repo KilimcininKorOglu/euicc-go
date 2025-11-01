@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/damonto/euicc-go/apdu"
+	"github.com/KilimcininKorOglu/euicc-go/apdu"
 )
 
 // MBIM implements the apdu.SmartCardChannel interface using MBIM protocol

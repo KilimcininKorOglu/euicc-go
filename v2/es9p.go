@@ -3,7 +3,7 @@ package sgp22
 import (
 	"net/url"
 
-	"github.com/damonto/euicc-go/bertlv"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv"
 )
 
 // region Section 5.6.1, ES9+.HandleNotification

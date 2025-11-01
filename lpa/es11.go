@@ -3,7 +3,7 @@ package lpa
 import (
 	"net/url"
 
-	sgp22 "github.com/damonto/euicc-go/v2"
+	sgp22 "github.com/KilimcininKorOglu/euicc-go/v2"
 )
 
 // Discovery discovers the downloadable profiles from SM-DS.

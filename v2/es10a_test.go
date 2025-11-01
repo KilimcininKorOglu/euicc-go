@@ -3,7 +3,7 @@ package sgp22
 import (
 	"testing"
 
-	"github.com/damonto/euicc-go/bertlv"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv"
 	"github.com/stretchr/testify/assert"
 )
 

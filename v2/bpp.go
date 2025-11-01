@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/damonto/euicc-go/bertlv"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv"
 )
 
 func SegmentedBoundProfilePackage(bpp *bertlv.TLV) (segments [][]byte, err error) {

@@ -8,9 +8,9 @@ import (
 	"sync/atomic"
 	"syscall"
 
-	"github.com/damonto/euicc-go/apdu"
-	"github.com/damonto/euicc-go/driver/qmi/core"
-	transport "github.com/damonto/euicc-go/driver/qmi/transport/qmi"
+	"github.com/KilimcininKorOglu/euicc-go/apdu"
+	"github.com/KilimcininKorOglu/euicc-go/driver/qmi/core"
+	transport "github.com/KilimcininKorOglu/euicc-go/driver/qmi/transport/qmi"
 )
 
 // QMI implements the apdu.SmartCardChannel interface using QMI protocol

@@ -8,7 +8,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/damonto/euicc-go/apdu"
+	"github.com/KilimcininKorOglu/euicc-go/apdu"
 )
 
 type AT struct {

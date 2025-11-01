@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ElMostafaIdrassi/goscard"
-	"github.com/damonto/euicc-go/apdu"
+	"github.com/KilimcininKorOglu/euicc-go/apdu"
 )
 
 type CCID interface {

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/damonto/euicc-go/http/rootci"
+	"github.com/KilimcininKorOglu/euicc-go/http/rootci"
 )
 
 type LoggingRoundTripper struct {

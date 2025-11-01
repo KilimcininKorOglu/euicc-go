@@ -10,9 +10,9 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/damonto/euicc-go/apdu"
-	"github.com/damonto/euicc-go/driver/qmi/core"
-	transport "github.com/damonto/euicc-go/driver/qmi/transport/qrtr"
+	"github.com/KilimcininKorOglu/euicc-go/apdu"
+	"github.com/KilimcininKorOglu/euicc-go/driver/qmi/core"
+	transport "github.com/KilimcininKorOglu/euicc-go/driver/qmi/transport/qrtr"
 	"golang.org/x/sys/unix"
 )
 

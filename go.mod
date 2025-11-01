@@ -1,4 +1,4 @@
-module github.com/damonto/euicc-go
+module github.com/KilimcininKorOglu/euicc-go
 
 go 1.24.0
 

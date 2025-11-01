@@ -4,8 +4,8 @@ import (
 	"crypto/sha256"
 	"errors"
 
-	"github.com/damonto/euicc-go/bertlv"
-	"github.com/damonto/euicc-go/bertlv/primitive"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv/primitive"
 )
 
 // region Section 5.7.5, ES10b.PrepareDownload

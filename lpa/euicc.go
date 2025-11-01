@@ -6,10 +6,10 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/damonto/euicc-go/apdu"
-	"github.com/damonto/euicc-go/driver"
-	"github.com/damonto/euicc-go/http"
-	sgp22 "github.com/damonto/euicc-go/v2"
+	"github.com/KilimcininKorOglu/euicc-go/apdu"
+	"github.com/KilimcininKorOglu/euicc-go/driver"
+	"github.com/KilimcininKorOglu/euicc-go/http"
+	sgp22 "github.com/KilimcininKorOglu/euicc-go/v2"
 )
 
 // GSMAISDRApplicationAID is the AID of the GSMA SGP.02 ISD-R application.

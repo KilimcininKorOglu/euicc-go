@@ -4,8 +4,8 @@ import (
 	"errors"
 	"slices"
 
-	"github.com/damonto/euicc-go/bertlv"
-	"github.com/damonto/euicc-go/bertlv/primitive"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv/primitive"
 )
 
 // region notification search criteria

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/damonto/euicc-go/bertlv/primitive"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv/primitive"
 )
 
 // region ICCID

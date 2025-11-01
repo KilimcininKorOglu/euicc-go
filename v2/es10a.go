@@ -4,8 +4,8 @@ import (
 	"errors"
 	"unicode/utf8"
 
-	"github.com/damonto/euicc-go/bertlv"
-	"github.com/damonto/euicc-go/bertlv/primitive"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv/primitive"
 )
 
 // region Section 5.7.3, ES10a.GetEuiccConfiguredAddresses

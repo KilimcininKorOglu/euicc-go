@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/damonto/euicc-go/driver/qmi/core"
+	"github.com/KilimcininKorOglu/euicc-go/driver/qmi/core"
 )
 
 // Response represents a complete parsed QMI message

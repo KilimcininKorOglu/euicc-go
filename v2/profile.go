@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/base64"
 
-	"github.com/damonto/euicc-go/bertlv"
-	"github.com/damonto/euicc-go/bertlv/primitive"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv/primitive"
 )
 
 type ProfileInfo struct {

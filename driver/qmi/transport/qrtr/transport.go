@@ -7,7 +7,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/damonto/euicc-go/driver/qmi/core"
+	"github.com/KilimcininKorOglu/euicc-go/driver/qmi/core"
 )
 
 type Transport struct {

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/url"
 
-	"github.com/damonto/euicc-go/bertlv"
+	"github.com/KilimcininKorOglu/euicc-go/bertlv"
 )
 
 type Transmitter interface {
