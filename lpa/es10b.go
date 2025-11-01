@@ -134,3 +134,16 @@ func (c *Client) RemoveNotificationFromList(sequenceNumber sgp22.SequenceNumber)
 	})
 	return err
 }
+
+// GetRAT retrieves the Rules Authorisation Table from the eUICC.
+// The RAT contains profile policy authorization rules including allowed operators
+// and profile policy rule flags.
+//
+// Returns an empty list if no RAT is configured on the eUICC.
+func (c *Client) GetRAT() ([]*sgp22.RulesAuthorisationTable, error) {
+	response, err := sgp22.InvokeAPDU(c.APDU, new(sgp22.GetRATRequest))
+	if err != nil {
+		return nil, err
+	}
+	return response.RATList, nil
+}

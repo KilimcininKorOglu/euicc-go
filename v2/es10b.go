@@ -364,6 +364,156 @@ func (r *NotificationSentResponse) Valid() error {
 
 // endregion
 
+// region ES10b.GetRAT (Rules Authorisation Table)
+
+// GetRATRequest retrieves the Rules Authorisation Table from the eUICC.
+//
+// See SGP.22 specification for RulesAuthorisationTable structure.
+type GetRATRequest struct{}
+
+func (r *GetRATRequest) MarshalBERTLV() (*bertlv.TLV, error) {
+	return bertlv.NewChildren(bertlv.ContextSpecific.Constructed(67)), nil // 0xBF43
+}
+
+func (r *GetRATRequest) CardResponse() *GetRATResponse {
+	return new(GetRATResponse)
+}
+
+type GetRATResponse struct {
+	RATList []*RulesAuthorisationTable
+}
+
+func (r *GetRATResponse) UnmarshalBERTLV(tlv *bertlv.TLV) error {
+	if !tlv.Tag.If(bertlv.ContextSpecific, bertlv.Constructed, 67) { // 0xBF43
+		return ErrUnexpectedTag
+	}
+
+	// Find RulesAuthorisationTable tag (0xA0)
+	ratContainer := tlv.First(bertlv.ContextSpecific.Constructed(0))
+	if ratContainer == nil {
+		return nil // Empty list is valid
+	}
+
+	var rats []*RulesAuthorisationTable
+	for _, child := range ratContainer.Children {
+		rat := new(RulesAuthorisationTable)
+		if err := rat.UnmarshalBERTLV(child); err != nil {
+			return err
+		}
+		rats = append(rats, rat)
+	}
+
+	r.RATList = rats
+	return nil
+}
+
+func (r *GetRATResponse) Valid() error {
+	return nil
+}
+
+// RulesAuthorisationTable represents profile policy authorization rules.
+type RulesAuthorisationTable struct {
+	PPRIds           []string
+	AllowedOperators []*OperatorID
+	PPRFlags         []string
+}
+
+func (r *RulesAuthorisationTable) UnmarshalBERTLV(tlv *bertlv.TLV) error {
+	// ProfilePolicyAuthorisationRule
+	for _, child := range tlv.Children {
+		switch child.Tag.Value() {
+		case 0x80: // pprIds
+			rules := []string{"pprUpdateControl", "ppr1", "ppr2", "ppr3"}
+			r.PPRIds = parsePPRBitString(child.Value, rules)
+		case 0xA1: // allowedOperators (context-specific constructed 1)
+			var operators []*OperatorID
+			for _, opChild := range child.Children {
+				op := new(OperatorID)
+				if err := op.UnmarshalBERTLV(opChild); err != nil {
+					return err
+				}
+				operators = append(operators, op)
+			}
+			r.AllowedOperators = operators
+		case 0x82: // pprFlags
+			flags := []string{"pprUpdateControl", "ppr1", "ppr2", "ppr3"}
+			r.PPRFlags = parsePPRBitString(child.Value, flags)
+		}
+	}
+	return nil
+}
+
+// OperatorID represents a mobile network operator identifier.
+type OperatorID struct {
+	PLMN string // MCC+MNC in hex
+	GID1 string // Group Identifier Level 1 in hex
+	GID2 string // Group Identifier Level 2 in hex
+}
+
+func (o *OperatorID) UnmarshalBERTLV(tlv *bertlv.TLV) error {
+	for _, child := range tlv.Children {
+		switch child.Tag.Value() {
+		case 0x80: // mcc_mnc (PLMN)
+			o.PLMN = hexEncode(child.Value)
+		case 0x81: // gid1
+			o.GID1 = hexEncode(child.Value)
+		case 0x82: // gid2
+			o.GID2 = hexEncode(child.Value)
+		}
+	}
+	return nil
+}
+
+// parsePPRBitString parses Profile Policy Rules bit string
+func parsePPRBitString(data []byte, names []string) []string {
+	if len(data) == 0 {
+		return nil
+	}
+
+	// First byte is the number of unused bits
+	unusedBits := int(data[0])
+	if len(data) < 2 {
+		return nil
+	}
+
+	var result []string
+	bitData := data[1:]
+	bitIndex := 0
+	totalBits := len(bitData)*8 - unusedBits
+
+	for _, b := range bitData {
+		for bitPos := 7; bitPos >= 0; bitPos-- {
+			if bitIndex >= totalBits {
+				break
+			}
+			if bitIndex < len(names) {
+				if (b & (1 << bitPos)) != 0 {
+					result = append(result, names[bitIndex])
+				}
+			}
+			bitIndex++
+		}
+	}
+
+	return result
+}
+
+// hexEncode converts bytes to hex string
+func hexEncode(data []byte) string {
+	if len(data) == 0 {
+		return ""
+	}
+	result := make([]byte, len(data)*2)
+	const hexChars = "0123456789abcdef"
+	for i, b := range data {
+		result[i*2] = hexChars[b>>4]
+		result[i*2+1] = hexChars[b&0x0f]
+	}
+	return string(result)
+}
+
+// endregion
+
 // region Section 5.7.13, ES10b.AuthenticateServer
 
 // AuthenticateServerRequest is used to authenticate the server.
