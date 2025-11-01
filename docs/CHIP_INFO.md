@@ -278,6 +278,7 @@ fmt.Println(string(jsonData))
 ### UICC Capability Values
 
 Common capability values include:
+
 - `contactlessSupport` - NFC/contactless support
 - `usimSupport` - 3G/UMTS SIM support
 - `isimSupport` - IMS SIM support
