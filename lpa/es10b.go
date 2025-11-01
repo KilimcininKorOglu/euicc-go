@@ -27,7 +27,8 @@ func (c *Client) EUICCInfo1() (*bertlv.TLV, error) {
 	return euiccInfo1.Response, nil
 }
 
-// EUICCInfo2 retrieves the eUICC information (version 2).
+// EUICCInfo2 retrieves the eUICC information (version 2) as raw TLV.
+// For parsed structure, use EUICCInfo2Parsed().
 //
 // See https://aka.pw/sgp22/v2.5#page=187 (Section 5.7.8, ES10b.GetEUICCInfo)
 func (c *Client) EUICCInfo2() (*bertlv.TLV, error) {
@@ -36,6 +37,24 @@ func (c *Client) EUICCInfo2() (*bertlv.TLV, error) {
 		return nil, err
 	}
 	return euiccInfo1.Response, nil
+}
+
+// EUICCInfo2Parsed retrieves the eUICC information (version 2) as a parsed structure.
+// This provides easy access to all eUICC information including memory/storage details.
+//
+// See https://aka.pw/sgp22/v2.5#page=187 (Section 5.7.8, ES10b.GetEUICCInfo)
+func (c *Client) EUICCInfo2Parsed() (*sgp22.EUICCInfo2, error) {
+	tlv, err := c.EUICCInfo2()
+	if err != nil {
+		return nil, err
+	}
+
+	var info sgp22.EUICCInfo2
+	if err := info.UnmarshalBERTLV(tlv); err != nil {
+		return nil, err
+	}
+
+	return &info, nil
 }
 
 // AuthenticateClient authenticates the client to the eUICC.
