@@ -356,6 +356,50 @@ This implementation provides equivalent functionality to lpac's `chip info` comm
 
 The LPA client is not thread-safe. Do not call chip info functions from multiple goroutines simultaneously on the same client instance. Create separate client instances for concurrent access.
 
+## Known Issues and Fixes
+
+### Version History
+
+#### v1.1.0 (2025-11-03) - Critical Bug Fixes
+
+**Fixed: ExtCardResource fields returning zero values**
+
+Prior to this version, the `ExtCardResource` fields (memory information) were incorrectly parsed and returned zero values:
+- `InstalledApplication`: Always returned 0
+- `FreeNonVolatileMemory`: Always returned 0
+- `FreeVolatileMemory`: Always returned 0
+
+**Root Cause:**
+Two bugs were discovered and fixed:
+
+1. **ExtCardResource Nested TLV Parsing**: The tag `0x84` (ExtCardResource) is a primitive tag containing nested TLVs. The previous implementation attempted to use `bertlv.TLV.UnmarshalBinary()` on the value bytes, which failed to properly parse the nested structure. The fix implements manual TLV parsing similar to lpac's implementation.
+
+2. **Tag Comparison Bug**: The code was using `Tag.Value()` in switch statements, comparing against full byte values like `0x84`. However, `Tag.Value()` only returns the tag number (bits 4-0), not the full byte. For tag `0x84`, it returns `4`, not `0x84`. The fix uses `Tag.If(class, form, number)` for proper tag matching.
+
+**Changes Made:**
+- `v2/euiccinfo2.go`: Rewrote `ExtCardResource.UnmarshalBERTLV()` with manual TLV parsing (lines 124-199)
+- `v2/euiccinfo2.go`: Changed all tag comparisons from `switch Tag.Value()` to `switch` with `Tag.If()` conditions (lines 77-122)
+- Added comprehensive unit tests in `v2/euiccinfo2_test.go`
+
+**Verification:**
+```bash
+# Before fix:
+"ext_card_resource": {
+  "installed_application": 0,
+  "free_non_volatile_memory": 0,
+  "free_volatile_memory": 0
+}
+
+# After fix:
+"ext_card_resource": {
+  "installed_application": 5,
+  "free_non_volatile_memory": 524288,  // Example: 512 KB
+  "free_volatile_memory": 65536        // Example: 64 KB
+}
+```
+
+This fix ensures compatibility with lpac's chip info implementation and correctly parses all eUICC memory and resource information.
+
 ## Related Documentation
 
 - [SGP.22 v2.5 Specification](https://aka.pw/sgp22/v2.5)

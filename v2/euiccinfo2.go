@@ -75,42 +75,46 @@ func (e *EUICCInfo2) UnmarshalBERTLV(tlv *bertlv.TLV) error {
 	}
 
 	for _, child := range tlv.Children {
-		switch child.Tag.Value() {
-		case 0x81: // profileVersion
+		// Note: Tag.Value() returns only the tag number (bits 4-0), not the full byte.
+		// For context-specific tags like 0x81, Tag.Value() returns 1, not 0x81.
+		// We match against the full tag using Tag.If() for clarity.
+
+		switch {
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Primitive, 1): // 0x81 profileVersion
 			e.ProfileVersion = parseVersion(child.Value)
-		case 0x82: // svn
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Primitive, 2): // 0x82 svn
 			e.SVN = parseVersion(child.Value)
-		case 0x83: // euiccFirmwareVer
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Primitive, 3): // 0x83 euiccFirmwareVer
 			e.EUICCFirmwareVer = parseVersion(child.Value)
-		case 0x84: // extCardResource
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Primitive, 4): // 0x84 extCardResource
 			if err := e.ExtCardResource.UnmarshalBERTLV(child); err != nil {
 				return err
 			}
-		case 0x85: // uiccCapability
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Primitive, 5): // 0x85 uiccCapability
 			e.UICCCapability = parseUICCCapability(child.Value)
-		case 0x86: // ts102241Version
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Primitive, 6): // 0x86 ts102241Version
 			e.TS102241Version = parseVersion(child.Value)
-		case 0x87: // globalplatformVersion
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Primitive, 7): // 0x87 globalplatformVersion
 			e.GlobalPlatformVersion = parseVersion(child.Value)
-		case 0x88: // rspCapability
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Primitive, 8): // 0x88 rspCapability
 			e.RSPCapability = parseRSPCapability(child.Value)
-		case 0xA9: // euiccCiPKIdListForVerification (context-specific constructed 9)
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Constructed, 9): // 0xA9 euiccCiPKIdListForVerification
 			e.EUICCCiPKIdListForVerification = parsePKIdList(child)
-		case 0xAA: // euiccCiPKIdListForSigning (context-specific constructed 10)
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Constructed, 10): // 0xAA euiccCiPKIdListForSigning
 			e.EUICCCiPKIdListForSigning = parsePKIdList(child)
-		case 0xAB: // euiccCategory (context-specific constructed 11)
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Constructed, 11): // 0xAB euiccCategory
 			if len(child.Value) > 0 {
 				var cat int8
 				child.UnmarshalValue(primitive.UnmarshalInt(&cat))
 				e.EUICCCategory = EUICCCategory(cat).String()
 			}
-		case 0x99: // forbiddenProfilePolicyRules (context-specific primitive 25)
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Primitive, 25): // 0x99 forbiddenProfilePolicyRules
 			e.ForbiddenProfilePolicyRules = parseForbiddenPPR(child.Value)
-		case 0x04: // ppVersion (universal primitive 4 - OCTET STRING)
+		case child.Tag.If(bertlv.Universal, bertlv.Primitive, 4): // 0x04 ppVersion (OCTET STRING)
 			e.PPVersion = parseVersion(child.Value)
-		case 0x0C: // sasAccreditationNumber (universal primitive 12 - UTF8String)
+		case child.Tag.If(bertlv.Universal, bertlv.Primitive, 12): // 0x0C sasAccreditationNumber (UTF8String)
 			e.SASAccreditationNumber = string(child.Value)
-		case 0xAC: // certificationDataObject (context-specific constructed 12)
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Constructed, 12): // 0xAC certificationDataObject
 			if err := e.CertificationDataObject.UnmarshalBERTLV(child); err != nil {
 				return err
 			}
@@ -126,52 +130,72 @@ func (e *ExtCardResource) UnmarshalBERTLV(tlv *bertlv.TLV) error {
 		return ErrUnexpectedTag
 	}
 
-	// ExtCardResource is encoded as an OCTET STRING containing nested TLVs
-	// Parse the nested TLVs from the value by creating a temporary TLV
-	var container bertlv.TLV
-	if err := container.UnmarshalBinary(tlv.Value); err != nil {
-		return err
-	}
+	// ExtCardResource is encoded as an OCTET STRING (primitive tag 0x84)
+	// containing nested TLVs. We need to manually parse these nested TLVs
+	// from the value bytes.
 
-	// The container should be a constructed tag, iterate its children
-	for _, child := range container.Children {
-		switch child.Tag.Value() {
+	value := tlv.Value
+	offset := 0
+
+	for offset < len(value) {
+		// Parse tag
+		if offset >= len(value) {
+			break
+		}
+
+		tag := value[offset]
+		offset++
+
+		// Parse length
+		if offset >= len(value) {
+			break
+		}
+
+		length := int(value[offset])
+		offset++
+
+		// Handle multi-byte length (if bit 7 is set)
+		if length&0x80 != 0 {
+			numLengthBytes := length & 0x7F
+			length = 0
+			for i := 0; i < numLengthBytes && offset < len(value); i++ {
+				length = (length << 8) | int(value[offset])
+				offset++
+			}
+		}
+
+		// Extract value
+		if offset+length > len(value) {
+			break
+		}
+
+		fieldValue := value[offset : offset+length]
+		offset += length
+
+		// Parse the field based on tag
+		switch tag {
 		case 0x81: // installedApplication
-			if len(child.Value) > 0 {
+			if len(fieldValue) > 0 {
 				var val int32
-				child.UnmarshalValue(primitive.UnmarshalInt(&val))
+				// Create temporary TLV for unmarshaling
+				tempTLV := bertlv.NewValue(bertlv.ContextSpecific.Primitive(1), fieldValue)
+				tempTLV.UnmarshalValue(primitive.UnmarshalInt(&val))
 				e.InstalledApplication = uint32(val)
 			}
 		case 0x82: // freeNonVolatileMemory
-			if len(child.Value) > 0 {
+			if len(fieldValue) > 0 {
 				var val int32
-				child.UnmarshalValue(primitive.UnmarshalInt(&val))
+				tempTLV := bertlv.NewValue(bertlv.ContextSpecific.Primitive(2), fieldValue)
+				tempTLV.UnmarshalValue(primitive.UnmarshalInt(&val))
 				e.FreeNonVolatileMemory = uint32(val)
 			}
 		case 0x83: // freeVolatileMemory
-			if len(child.Value) > 0 {
+			if len(fieldValue) > 0 {
 				var val int32
-				child.UnmarshalValue(primitive.UnmarshalInt(&val))
+				tempTLV := bertlv.NewValue(bertlv.ContextSpecific.Primitive(3), fieldValue)
+				tempTLV.UnmarshalValue(primitive.UnmarshalInt(&val))
 				e.FreeVolatileMemory = uint32(val)
 			}
-		}
-	}
-
-	// If no children, try parsing as direct sequence
-	if len(container.Children) == 0 {
-		switch container.Tag.Value() {
-		case 0x81:
-			var val int32
-			container.UnmarshalValue(primitive.UnmarshalInt(&val))
-			e.InstalledApplication = uint32(val)
-		case 0x82:
-			var val int32
-			container.UnmarshalValue(primitive.UnmarshalInt(&val))
-			e.FreeNonVolatileMemory = uint32(val)
-		case 0x83:
-			var val int32
-			container.UnmarshalValue(primitive.UnmarshalInt(&val))
-			e.FreeVolatileMemory = uint32(val)
 		}
 	}
 
@@ -185,10 +209,10 @@ func (c *CertificationDataObject) UnmarshalBERTLV(tlv *bertlv.TLV) error {
 	}
 
 	for _, child := range tlv.Children {
-		switch child.Tag.Value() {
-		case 0x80: // platformLabel
+		switch {
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Primitive, 0): // 0x80 platformLabel
 			c.PlatformLabel = string(child.Value)
-		case 0x81: // discoveryBaseURL
+		case child.Tag.If(bertlv.ContextSpecific, bertlv.Primitive, 1): // 0x81 discoveryBaseURL
 			c.DiscoveryBaseURL = string(child.Value)
 		}
 	}
