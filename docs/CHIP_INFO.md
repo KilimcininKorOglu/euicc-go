@@ -360,7 +360,7 @@ The LPA client is not thread-safe. Do not call chip info functions from multiple
 
 ### Version History
 
-#### v1.1.0 (2025-11-03) - Critical Bug Fixes
+#### v1.2.2 (2025-11-03) - Critical Bug Fixes
 
 **Fixed: ExtCardResource fields returning zero values**
 
