@@ -91,12 +91,20 @@ func TestTLV_Clone(t *testing.T) {
 }
 
 func TestTLV_LargeValue(t *testing.T) {
+	// After uint32 support, we can handle values > 65535
+	// Test that we can successfully marshal a value larger than uint16 max
 	tlv := NewChildren(
 		Constructed.ContextSpecific(0),
 		NewValue(Primitive.ContextSpecific(0), make([]byte, 0x10000)),
 	)
-	_, err := tlv.MarshalBinary()
-	assert.EqualError(t, err, "tlv: length exceeds maximum (65535), got 65540")
+	data, err := tlv.MarshalBinary()
+	assert.NoError(t, err)
+	assert.NotNil(t, data)
+	// Verify the marshaled data can be unmarshaled back
+	var unmarshaled TLV
+	err = unmarshaled.UnmarshalBinary(data)
+	assert.NoError(t, err)
+	assert.Equal(t, len(tlv.Children[0].Value), len(unmarshaled.Children[0].Value))
 }
 
 func TestTLV_InvalidConstructedTag(t *testing.T) {
